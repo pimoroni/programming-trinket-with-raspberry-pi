@@ -4,8 +4,44 @@ This GitHub Repo accompanies our guide to programming your 3v3 Adafruit Trinket 
 
 Included are examples of Trinket-ready code.
 
+## Requirements
+
+You will need the Arduino IDE and avrdude installed:
+
+    sudo apt-get install arduino avrdude
+
+You will then need Gordon Henderson's modified avrdude, which lets you program using the GPIO header on your Pi.
+
+On Raspbian you can do:
+
+    cd /tmp
+    wget http://project-downloads.drogon.net/gertboard/avrdude_5.10-4_armhf.deb
+    sudo dpkg -i avrdude_5.10-4_armhf.deb
+    sudo chmod 4755 /usr/bin/avrdude
+
+For all other distributions you should find the appropriate package here, or compile from source:
+
+    http://project-downloads.drogon.net/gertboard/
+
+Finally, you will need to install the hardware files for the Trinket into your Arduino library folder.
+
+You should be able to run trinket/install in this repository.
+
+    cd trinket
+    sudo ./install
+
+This will copy the files to:
+
+    /usr/share/arduino/hardware
+
+Once you're set up, and have your Trinket connected properly, you can test everything by installing the Blink example:
+
+    cd examples/blink
+    make upload
 
 ## A note on NeoPixels
+
+The Trinket is a great little compact NeoPixel driver, but it's a little short on memory.
 
 By default, Adafruit disable v1 NeoPixels on an 8Mhz Trinket. You can re-enable them as follows:
 
