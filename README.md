@@ -8,14 +8,13 @@ Included are examples of Trinket-ready code.
 
 You will need the Arduino IDE and avrdude installed:
 
-    sudo apt-get install arduino avrdude
+    sudo apt-get install arduino
 
 You will then need Gordon Henderson's modified avrdude, which lets you program using the GPIO header on your Pi.
 
 On Raspbian you can do:
 
-    cd /tmp
-    wget http://project-downloads.drogon.net/gertboard/avrdude_5.10-4_armhf.deb
+    cd avrdude
     sudo dpkg -i avrdude_5.10-4_armhf.deb
     sudo chmod 4755 /usr/bin/avrdude
 
