@@ -1,2 +1,12 @@
 #!/usr/bin/env bash
-cp -r hardware/* /usr/share/arduino/hardware/
+
+if [ ! -d ~/sketchbook ]
+then
+  echo "~/sketchbook directory not found, creating!"
+  mkdir ~/sketchbook
+else
+  echo "~/sketchbook directory found"
+fi
+echo "Copying hardware definitions..."
+cp -vr hardware ~/sketchbook/
+echo "All done!"

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+echo "0: Preparing"
+
+git submodule update --init
+
+echo "1: Installing Ardunio IDE"
+
+sudo apt-get install --force-yes --yes arduino
+
+echo "2: Installing Avrdude"
+
+sudo dpkg -i avrdude/avrdude_*_armhf.deb
+sudo chmod 4755 /usr/bin/avrdude
+
+echo "3: Installing Board Definitions"
+
+if [ ! -d ~/sketchbook ]
+then
+  echo "~/sketchbook directory not found, creating!"
+  mkdir ~/sketchbook
+else
+  echo "~/sketchbook directory found"
+fi
+echo "Copying hardware definitions..."
+cp -vr trinket/hardware ~/sketchbook/
+
+echo "All done!"
+echo "Now try compiling Blink!"
+echo ""
+echo "    cd examples/blink"
+echo "    make"
