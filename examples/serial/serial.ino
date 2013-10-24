@@ -2,12 +2,13 @@
 #include "serial.h" // Our function prototypes
 
 #define MY_PIN 1 // Built-in red LED
+#define BAUD_RATE 9600
 
 SoftwareSerial Serial(3,4);
 
 void setup(){
   pinMode(MY_PIN,OUTPUT);
-  Serial.begin(9600);
+  Serial.begin(BAUD_RATE);
   Serial.println("Hello World");
 }
 

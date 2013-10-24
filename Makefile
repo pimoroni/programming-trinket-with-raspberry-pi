@@ -19,8 +19,10 @@ ARDUINO_LIBS =
 #   if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
 # }
 
-BOARD_TAG = trinket3
-#BOARD_TAG = trinket5 # For 5v version
+ifndef BOARD_TAG
+    BOARD_TAG = trinket3
+    #BOARD_TAG = trinket5 # For 5v version
+endif
 
 # You probably wont need to change anything below
 
