@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+cd /tmp
+echo "0: Getting TinyWire"
+git clone https://github.com/rambo/TinyWire
+cd TinyWire
+
+if [ ! -d ~/sketchbook ]
+then
+  echo "~/sketchbook directory not found, creating!"
+  mkdir ~/sketchbook
+else
+  echo "~/sketchbook directory found"
+fi
+
+if [ ! -d ~/sketchbook/libraries ]
+then
+  echo "~/sketchbook/libraries directory not found, creating!"
+  mkdir ~/sketchbook/libraries
+else
+  echo "~/sketchbook/libraries directory found"
+fi
+
+
+echo "1: Installing into libraries folder"
+cp -vr TinyWireS ~/sketchbook/libraries/
