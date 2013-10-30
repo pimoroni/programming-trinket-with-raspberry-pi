@@ -1,5 +1,6 @@
+#include <TinyWireS.h>
+#include <Adafruit_NeoPixel.h>
 #include "i2c-neopixels.h"
-// This example is adapted from https://github.com/rambo/TinyWire
 
 // The I2C address that your Trinket will use
 #define I2C_SLAVE_ADDRESS 0x4
@@ -9,17 +10,15 @@
 #define PIXELS 7 // My NeoPixel stick is broken!
 #define BRIGHTNESS 200
 
-#include <TinyWireS.h>
-#include <Adafruit_NeoPixel.h>
-
 // You might want to change this to NEO_RGB if you're using anything but real NeoPixels
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXELS, PIN, NEO_GRB + NEO_KHZ400);
 
 // Registers to store the colours of each pixel
-volatile uint8_t i2c_regs[PIXELS];
+// volatile uint8_t i2c_regs[PIXELS];
 
 // Tracks the current register pointer position
 volatile byte reg_position;
+volatile uint16_t current_pixel;
 
 // Function to convert int to rgb colour, from AdaFruit example
 int32_t Wheel(byte WheelPos) {
@@ -40,9 +39,10 @@ int32_t Wheel(byte WheelPos) {
  */
 void requestEvent()
 {  
-    TinyWireS.send(i2c_regs[reg_position]);
+    // Implements i2cget, we'll implement this later
+    // TinyWireS.send(i2c_regs[reg_position]);
     // Increment the reg position on each read, and loop back to zero
-    reg_position = (reg_position+1) % sizeof(i2c_regs);
+    //reg_position = (reg_position+1) % sizeof(i2c_regs);
 }
 
 /**
@@ -51,45 +51,81 @@ void requestEvent()
  * This needs to complete before the next incoming transaction (start, data, restart/stop) on the bus does
  * so be quick, set flags for long running tasks to be called from the mainloop instead of running them directly,
  */
-void receiveEvent(uint8_t howMany)
+void receiveEvent(uint8_t NumBytes)
 {
-    if (howMany < 1)
+    if (NumBytes < 1)
     {
-        // Sanity-check
+        // No data
         return;
     }
-    if (howMany > TWI_RX_BUFFER_SIZE)
+
+    if (NumBytes > TWI_RX_BUFFER_SIZE)
     {
         // Also insane number
         return;
     }
 
-    reg_position = TinyWireS.receive();
-    howMany--;
-    if (!howMany)
-    {
-        // This write was only to set the buffer for next read
-        return;
-    }
-    while(howMany--)
-    {
-        i2c_regs[reg_position%sizeof(i2c_regs)] = TinyWireS.receive();
+    uint8_t command = TinyWireS.receive();
+    NumBytes--;
 
-        // Update NeoPixels
-        strip.setPixelColor(reg_position%sizeof(i2c_regs), Wheel(i2c_regs[reg_position%sizeof(i2c_regs)]));
+    switch(command){
+      case CMD_SET_PIXEL_COLOR_RGB:
+           
+        current_pixel = TinyWireS.receive();
+
+        NumBytes--;
+
+        if (!NumBytes || NumBytes%3)
+        {
+          // Either no bytes, or not a valid multiple of 3 ( RGB RGB RGB etc )
+          return;
+        }      
+
+        while(NumBytes>0)
+        {
+          // Receive R, G and B values
+          strip.setPixelColor(current_pixel,TinyWireS.receive(),TinyWireS.receive(),TinyWireS.receive());
+          current_pixel++; // De-increment by 3 ( RGB )
+          NumBytes-=3;
+        }
+
         strip.show();
 
-        // Increment register position
-        reg_position++;
-    }
+      break;
+      case CMD_SET_PIXEL_COLOR_WHEEL:
+        
+        current_pixel = TinyWireS.receive();
+
+        NumBytes--; // Start pixel has been read
+
+        if (!NumBytes)
+        {
+          // No bytes for pixel colours
+          return;
+        }
+        while(NumBytes--)
+        {
+            // Update NeoPixels
+            uint8_t col = TinyWireS.receive();
+
+            if( col > 0 ){
+              strip.setPixelColor(current_pixel%PIXELS, Wheel(col));
+            }
+            else
+            {
+              strip.setPixelColor(current_pixel%PIXELS, 0, 0, 0); // Set pixel off
+            }
+
+            // Increment register position
+            current_pixel++;
+        }
+        strip.show();
+        break;
+      }
 }
 
 void setup()
 {
-    for(int x=0;x < PIXELS;x++){
-        i2c_regs[x] = 0x00;
-    }
-
     TinyWireS.begin(I2C_SLAVE_ADDRESS);
     TinyWireS.onReceive(receiveEvent);
     TinyWireS.onRequest(requestEvent);
