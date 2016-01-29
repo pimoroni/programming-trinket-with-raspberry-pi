@@ -5,6 +5,8 @@
 #include "i2c-neopixels.h"
 
 // Neo KHZ400 is necessary on the 8Mhz Trinket
+// Note: NEO_KHZ400 has been made optional in recent versions of the NeoPixel library
+// please open up Adafruit_NeoPixel.h and follow the instructions inside.
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXELS, PIN, PIXEL_COLOR_MODE + NEO_KHZ400);
 
 // Tracks the current register pointer position and current pixel
